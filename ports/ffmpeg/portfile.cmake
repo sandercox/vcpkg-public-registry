@@ -622,6 +622,17 @@ if (VCPKG_TARGET_ARCHITECTURE STREQUAL "arm" OR VCPKG_TARGET_ARCHITECTURE STREQU
             get_filename_component(GAS_ITEM_PATH ${GAS_PATH} DIRECTORY)
             set(ENV{PATH} "$ENV{PATH}${VCPKG_HOST_PATH_SEPARATOR}${GAS_ITEM_PATH}")
         endforeach(GAS_PATH)
+    elseif(VCPKG_TARGET_IS_OSX) # VCPKG_TARGET_ARCHITECTURE = arm64
+        # get the number of architectures requested
+        list(LENGTH VCPKG_OSX_ARCHITECTURES ARCHITECTURE_COUNT)
+
+        # ideally we should check the CMAKE_HOST_SYSTEM_PROCESSOR, but that seems to be
+        # broken when inside a vcpkg port, so we only set it when doing a simple build
+        # for a single platform. multi-platform builds use a different script
+        if (ARCHITECTURE_COUNT LESS 2)
+            message(STATUS "Building on host: ${CMAKE_SYSTEM_PROCESSOR}")
+            set(OPTIONS_CROSS " --enable-cross-compile --target-os=darwin --arch=arm64 --extra-ldflags=-arch --extra-ldflags=arm64 --extra-cflags=-arch --extra-cflags=arm64 --extra-cxxflags=-arch --extra-cxxflags=arm64")
+        endif()
     endif()
 elseif (VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
 elseif (VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
@@ -669,6 +680,20 @@ set(ENV_LIB_PATH "$ENV{${LIB_PATH_VAR}}")
 
 message(STATUS "Building Options: ${OPTIONS}")
 
+# on apple platforms we might need to do multiple builds, and then
+# join them using lipo - ffmpeg does _not_ support multi-arch builds
+set(BUILD_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/build.sh.in")
+if ("${VCPKG_CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    # get the number of architectures requested
+    list(LENGTH VCPKG_OSX_ARCHITECTURES ARCHITECTURE_COUNT)
+
+    # we will need to join architectures if more than one arch is given
+    if (ARCHITECTURE_COUNT GREATER 1)
+        list(JOIN VCPKG_OSX_ARCHITECTURES " " ARCHITECTURES)
+        set(BUILD_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/build.darwin.sh.in")
+    endif()
+endif()
+
 # Release build
 if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     message(STATUS "Building Release Options: ${OPTIONS_RELEASE}")
@@ -683,7 +708,7 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     set(CONFIGURE_OPTIONS "${OPTIONS} ${OPTIONS_RELEASE}")
     set(INST_PREFIX       "${CURRENT_PACKAGES_DIR}")
 
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/build.sh.in" "${BUILD_DIR}/build.sh" @ONLY)
+    configure_file("${BUILD_SCRIPT}" "${BUILD_DIR}/build.sh" @ONLY)
 
     vcpkg_execute_required_process(
         COMMAND ${SHELL} ./build.sh
@@ -706,7 +731,7 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     set(CONFIGURE_OPTIONS "${OPTIONS} ${OPTIONS_DEBUG}")
     set(INST_PREFIX       "${CURRENT_PACKAGES_DIR}/debug")
 
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/build.sh.in" "${BUILD_DIR}/build.sh" @ONLY)
+    configure_file("${BUILD_SCRIPT}" "${BUILD_DIR}/build.sh" @ONLY)
 
     vcpkg_execute_required_process(
         COMMAND ${SHELL} ./build.sh
