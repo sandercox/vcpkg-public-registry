@@ -96,7 +96,7 @@ for ARCH in $ARCHS; do
 
     echo "=== CONFIGURING ($ARCH) ==="
 
-    sh "$PATH_TO_SRC_DIR/configure" "--prefix=$PATH_TO_PACKAGE_DIR" @CONFIGURE_OPTIONS@ --arch=$ARCH --extra-cflags="-arch $ARCH" --extra-ldflags="-arch $ARCH"
+    sh "$PATH_TO_SRC_DIR/configure" "--prefix=$PATH_TO_PACKAGE_DIR" @CONFIGURE_OPTIONS@ --enable-cross-compile --arch=$ARCH --extra-cflags="-arch $ARCH" --extra-ldflags="-arch $ARCH"
 
     echo "=== BUILDING ($ARCH) ==="
 
