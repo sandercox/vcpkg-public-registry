@@ -1,0 +1,25 @@
+diff --git a/libavcodec/proresdec2.c b/libavcodec/proresdec2.c
+index fe1f3a28bd..c5457e0024 100644
+--- a/libavcodec/proresdec2.c
++++ b/libavcodec/proresdec2.c
+@@ -264,9 +264,17 @@ static int decode_frame_header(ProresContext *ctx, const uint8_t *buf,
+         }
+     }
+ 
+-    avctx->color_primaries = buf[14];
+-    avctx->color_trc       = buf[15];
+-    avctx->colorspace      = buf[16];
++    // Only override color space info if it has been specified in the frame
++    // noticed that colorspace was still set to RGB even when we expected it
++    // to be BT709 but primaries and trc were unspecified so only checking those
++    // two options
++    if(buf[14] != AVCOL_PRI_UNSPECIFIED
++        && buf[15] != AVCOL_TRC_UNSPECIFIED) {
++        avctx->color_primaries = buf[14];
++        avctx->color_trc       = buf[15];
++        avctx->colorspace      = buf[16];
++    }
++
+     avctx->color_range     = AVCOL_RANGE_MPEG;
+ 
+     ptr   = buf + 20;
