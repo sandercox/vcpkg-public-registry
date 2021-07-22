@@ -152,6 +152,8 @@ vcpkg_from_github(
         0016-configure-dnn-needs-avformat.patch  # http://ffmpeg.org/pipermail/ffmpeg-devel/2021-May/279926.html
         ${PATCHES}
         1000-resolume-small-memory-allocations.patch
+        1001-max_chunk_size-from-format-context-in-build_chunks.patch
+        1002-proresdec2-no-colorspace-override.patch
 )
 
 if (SOURCE_PATH MATCHES " ")
@@ -189,6 +191,9 @@ if(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
 endif()
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
   set(OPTIONS "${OPTIONS} --enable-asm --enable-x86asm")
+endif()
+if(VCPKG_TARGET_IS_OSX)
+  set(OPTIONS "${OPTIONS} --install_name_dir=@rpath")
 endif()
 
 if(VCPKG_TARGET_IS_WINDOWS)
