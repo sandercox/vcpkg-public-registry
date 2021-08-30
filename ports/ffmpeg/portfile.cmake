@@ -154,6 +154,7 @@ vcpkg_from_github(
         1000-resolume-small-memory-allocations.patch
         1001-max_chunk_size-from-format-context-in-build_chunks.patch
         1002-proresdec2-no-colorspace-override.patch
+        1100-vulkan.patch
 )
 
 if (SOURCE_PATH MATCHES " ")
@@ -571,6 +572,14 @@ if("vpx" IN_LIST FEATURES)
     set(ENABLE_VPX ${STATIC_LINKAGE})
 else()
     set(OPTIONS "${OPTIONS} --disable-libvpx")
+endif()
+
+set(ENABLE_VULKAN OFF)
+if("vulkan" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-vulkan")
+    set(ENABLE_VULKAN ${STATIC_LINKAGE})
+else()
+    set(OPTIONS "${OPTIONS} --disable-vulkan")
 endif()
 
 set(ENABLE_WEBP OFF)

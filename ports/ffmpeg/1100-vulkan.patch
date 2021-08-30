@@ -1,0 +1,80 @@
+diff --git a/libavutil/hwcontext_vulkan.c b/libavutil/hwcontext_vulkan.c
+index 2e3faaaa1a..df59c07e0d 100644
+--- a/libavutil/hwcontext_vulkan.c
++++ b/libavutil/hwcontext_vulkan.c
+@@ -101,6 +101,8 @@ typedef struct AVVkFrameInternal {
+     CUmipmappedArray cu_mma[AV_NUM_DATA_POINTERS];
+     CUarray cu_array[AV_NUM_DATA_POINTERS];
+     CUexternalSemaphore cu_sem[AV_NUM_DATA_POINTERS];
++#else
++    int unused;
+ #endif
+ } AVVkFrameInternal;
+ 
+@@ -258,9 +260,9 @@ typedef struct VulkanOptExtension {
+     uint64_t flag;
+ } VulkanOptExtension;
+ 
+-static const VulkanOptExtension optional_instance_exts[] = {
+-    /* For future use */
+-};
++// static const VulkanOptExtension optional_instance_exts[] = {
++//     /* For future use */
++// };
+ 
+ static const VulkanOptExtension optional_device_exts[] = {
+     { VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,               EXT_EXTERNAL_FD_MEMORY,     },
+@@ -355,8 +357,8 @@ static int check_extensions(AVHWDeviceContext *ctx, int dev, AVDictionary *opts,
+ 
+     if (!dev) {
+         mod = "instance";
+-        optional_exts = optional_instance_exts;
+-        optional_exts_num = FF_ARRAY_ELEMS(optional_instance_exts);
++        optional_exts = 0; //optional_instance_exts;
++        optional_exts_num = 0; //FF_ARRAY_ELEMS(optional_instance_exts);
+         user_exts = av_dict_get(opts, "instance_extensions", NULL, 0);
+         if (user_exts) {
+             user_exts_str = av_strdup(user_exts->value);
+@@ -513,24 +515,24 @@ static int create_instance(AVHWDeviceContext *ctx, AVDictionary *opts)
+         return AVERROR_EXTERNAL;
+     }
+ 
+-    if (debug_mode) {
+-        VkDebugUtilsMessengerCreateInfoEXT dbg = {
+-            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+-            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT    |
+-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+-            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT    |
+-                           VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+-                           VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+-            .pfnUserCallback = vk_dbg_callback,
+-            .pUserData = ctx,
+-        };
+-        VK_LOAD_PFN(hwctx->inst, vkCreateDebugUtilsMessengerEXT);
+-
+-        pfn_vkCreateDebugUtilsMessengerEXT(hwctx->inst, &dbg,
+-                                           hwctx->alloc, &p->debug_ctx);
+-    }
++    // if (debug_mode) {
++    //     VkDebugUtilsMessengerCreateInfoEXT dbg = {
++    //         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
++    //         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
++    //                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT    |
++    //                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
++    //                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
++    //         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT    |
++    //                        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
++    //                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
++    //         .pfnUserCallback = vk_dbg_callback,
++    //         .pUserData = ctx,
++    //     };
++    //     VK_LOAD_PFN(hwctx->inst, vkCreateDebugUtilsMessengerEXT);
++
++    //     pfn_vkCreateDebugUtilsMessengerEXT(hwctx->inst, &dbg,
++    //                                        hwctx->alloc, &p->debug_ctx);
++    // }
+ 
+     hwctx->enabled_inst_extensions = inst_props.ppEnabledExtensionNames;
+     hwctx->nb_enabled_inst_extensions = inst_props.enabledExtensionCount;
