@@ -66,9 +66,9 @@ vcpkg_from_github(
         0011-Fix-x265-detection.patch
         0012-Fix-ssl-110-detection.patch
         0013-define-WINVER.patch
-        0014-avfilter-dependency-fix.patch  # http://ffmpeg.org/pipermail/ffmpeg-devel/2021-February/275819.html
+        0014-avfilter-dependency-fix.patch  # https://ffmpeg.org/pipermail/ffmpeg-devel/2021-February/275819.html
         0015-Fix-xml2-detection.patch
-        0016-configure-dnn-needs-avformat.patch  # http://ffmpeg.org/pipermail/ffmpeg-devel/2021-May/279926.html
+        0016-configure-dnn-needs-avformat.patch  # https://ffmpeg.org/pipermail/ffmpeg-devel/2021-May/279926.html
         ${PATCHES}
         1000-resolume-small-memory-allocations.patch
         1001-max_chunk_size-from-format-context-in-build_chunks.patch
@@ -589,7 +589,7 @@ if(VCPKG_TARGET_IS_UWP)
     set(OPTIONS_CROSS " --enable-cross-compile --target-os=win32 --arch=${VCPKG_TARGET_ARCHITECTURE}")
 endif()
 
-set(OPTIONS_DEBUG "--debug") # Note: --disable-optimizations can't be used due to http://ffmpeg.org/pipermail/libav-user/2013-March/003945.html
+set(OPTIONS_DEBUG "--debug") # Note: --disable-optimizations can't be used due to https://ffmpeg.org/pipermail/libav-user/2013-March/003945.html
 set(OPTIONS_RELEASE "")
 
 set(OPTIONS "${OPTIONS} ${OPTIONS_CROSS}")
