@@ -108,7 +108,20 @@ if(VCPKG_TARGET_IS_OSX AND VCPKG_OSX_DEPLOYMENT_TARGET)
     set(OPTIONS "--extra-ldflags=-mmacosx-version-min=${VCPKG_OSX_DEPLOYMENT_TARGET} ${OPTIONS}")
 endif()
 
-set(ENV{${INCLUDE_VAR}} "${CURRENT_INSTALLED_DIR}/include${VCPKG_HOST_PATH_SEPARATOR}$ENV{${INCLUDE_VAR}}")
+vcpkg_cmake_get_vars(cmake_vars_file)
+include("${cmake_vars_file}")
+
+if(VCPKG_DETECTED_MSVC)
+    set(OPTIONS "--toolchain=msvc ${OPTIONS}")
+    # This is required because ffmpeg depends upon optimizations to link correctly
+    string(APPEND VCPKG_COMBINED_C_FLAGS_DEBUG " -O2")
+    string(REGEX REPLACE "(^| )-RTC1( |$)" " " VCPKG_COMBINED_C_FLAGS_DEBUG "${VCPKG_COMBINED_C_FLAGS_DEBUG}")
+    string(REGEX REPLACE "(^| )-Od( |$)" " " VCPKG_COMBINED_C_FLAGS_DEBUG "${VCPKG_COMBINED_C_FLAGS_DEBUG}")
+    string(REGEX REPLACE "(^| )-Ob0( |$)" " " VCPKG_COMBINED_C_FLAGS_DEBUG "${VCPKG_COMBINED_C_FLAGS_DEBUG}")
+endif()
+
+string(APPEND VCPKG_COMBINED_C_FLAGS_DEBUG " -I \"${CURRENT_INSTALLED_DIR}/include\"")
+string(APPEND VCPKG_COMBINED_C_FLAGS_RELEASE " -I \"${CURRENT_INSTALLED_DIR}/include\"")
 
 set(_csc_PROJECT_PATH ffmpeg)
 
