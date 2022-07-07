@@ -108,6 +108,22 @@ if(VCPKG_TARGET_IS_OSX AND VCPKG_OSX_DEPLOYMENT_TARGET)
     set(OPTIONS "--extra-ldflags=-mmacosx-version-min=${VCPKG_OSX_DEPLOYMENT_TARGET} ${OPTIONS}")
 endif()
 
+if(VCPKG_TARGET_IS_MINGW)
+    if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
+        string(APPEND OPTIONS " --target-os=mingw32")
+    elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
+        string(APPEND OPTIONS " --target-os=mingw64")
+    endif()
+elseif(VCPKG_TARGET_IS_LINUX)
+    string(APPEND OPTIONS " --target-os=linux")
+elseif(VCPKG_TARGET_IS_WINDOWS)
+    string(APPEND OPTIONS " --target-os=win32")
+elseif(VCPKG_TARGET_IS_OSX)
+    string(APPEND OPTIONS " --target-os=darwin")
+elseif(VCPKG_CMAKE_SYSTEM_NAME STREQUAL "Android")
+    string(APPEND OPTIONS " --target-os=android")
+endif()
+
 vcpkg_cmake_get_vars(cmake_vars_file)
 include("${cmake_vars_file}")
 
@@ -516,7 +532,18 @@ if (VCPKG_TARGET_IS_OSX)
     set(OPTIONS "${OPTIONS} --extra-ldflags=\"-isysroot ${VCPKG_OSX_SYSROOT}\"")
 endif()
 
-set(OPTIONS_CROSS "")
+set(OPTIONS_CROSS " --enable-cross-compile")
+
+# ffmpeg needs --cross-prefix option to use appropriate tools for cross-compiling.
+if(VCPKG_DETECTED_CMAKE_C_COMPILER MATCHES "(/.+)gcc$")
+    string(APPEND OPTIONS_CROSS " --cross-prefix=${CMAKE_MATCH_1}")
+endif()
+
+if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
+    string(APPEND OPTIONS_CROSS " --arch=x86_64")
+else()
+    string(APPEND OPTIONS_CROSS " --arch=${VCPKG_TARGET_ARCHITECTURE}")
+endif()
 
 if (VCPKG_TARGET_ARCHITECTURE STREQUAL "arm" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
     if(VCPKG_TARGET_IS_WINDOWS)
