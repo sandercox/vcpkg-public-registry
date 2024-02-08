@@ -14,7 +14,7 @@ cd vcpkg-public-registry
 
 # assuming our modifications on ffmpeg are latest commit on master
 git checkout -B ffmpeg-port master^1
-git subtree pull <path-to-vcpkg-repo> ffmpeg-port ports/ffmpeg
+git subtree pull <path-to-vcpkg-repo> ffmpeg-port --prefix ports/ffmpeg
 git checkout -B ffmpeg-update master
 git rebase -i --autosquash ffmpeg-port
 
